@@ -1,5 +1,5 @@
 {
-	"name": "context-store",
+	"name": "contextstore",
 	"version": "1.0.0",
 	"description": "Context store with optimized rerenders",
 	"author": "Snolly",
