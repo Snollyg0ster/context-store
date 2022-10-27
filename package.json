@@ -1,6 +1,6 @@
 {
-	"name": "contextstore",
-	"version": "1.0.0",
+	"name": "@snolly/context-store",
+	"version": "1.0.2",
 	"description": "Context store with optimized rerenders",
 	"main": "./dist/index.js",
 	"scripts": {
@@ -8,21 +8,21 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Snollyg0ster/context-store.git"
+		"url": "git+https://github.com/Snollyg0ster/contextstore.git"
 	},
+	"author": "snolly",
+	"license": "ISC",
+	"types": "./dist/index.d.ts",
+	"bugs": {
+		"url": "https://github.com/Snollyg0ster/contextstore/issues"
+	},
+	"homepage": "https://github.com/Snollyg0ster/contextstore#readme",
 	"keywords": [
 		"javascript",
 		"typescript",
 		"react",
 		"context"
 	],
-	"author": "snollygoster",
-	"license": "ISC",
-	"types": "./dist/index.d.ts",
-	"bugs": {
-		"url": "https://github.com/Snollyg0ster/context-store/issues"
-	},
-	"homepage": "https://github.com/Snollyg0ster/context-store#readme",
 	"devDependencies": {
 		"@types/react": "17.0.20",
 		"@types/react-dom": "17.0.9",
