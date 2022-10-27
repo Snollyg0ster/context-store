@@ -1,2 +1,3 @@
-export { default as createStore } from "./createStore";
+import { default as createStore } from "./createStore";
 export { createAction } from "./utils";
+export default createStore;

@@ -6,9 +6,12 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 exports.__esModule = true;
-exports.createAction = exports.createStore = void 0;
-var createStore_1 = require("./createStore");
-__createBinding(exports, createStore_1, "default", "createStore");
+exports.createAction = void 0;
+var createStore_1 = __importDefault(require("./createStore"));
 var utils_1 = require("./utils");
 __createBinding(exports, utils_1, "createAction");
+exports["default"] = createStore_1["default"];
