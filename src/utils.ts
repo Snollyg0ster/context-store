@@ -6,7 +6,7 @@ export const createAction = <P = undefined>() => <T extends string>(
       type,
       payload
     };
-  }) as unknown) as P extends undefined
+  })) as P extends undefined
     ? () => { type: T }
     : (payload: P) => { type: T; payload: P };
 };
