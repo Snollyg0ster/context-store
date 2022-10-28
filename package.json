@@ -8,15 +8,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Snollyg0ster/contextstore.git"
+		"url": "git+https://github.com/Snollyg0ster/context-store.git"
 	},
 	"author": "snolly",
 	"license": "ISC",
 	"types": "./dist/index.d.ts",
 	"bugs": {
-		"url": "https://github.com/Snollyg0ster/contextstore/issues"
+		"url": "https://github.com/Snollyg0ster/context-store/issues"
 	},
-	"homepage": "https://github.com/Snollyg0ster/contextstore#readme",
+	"homepage": "https://github.com/Snollyg0ster/context-store#readme",
 	"keywords": [
 		"javascript",
 		"typescript",

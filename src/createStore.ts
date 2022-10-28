@@ -28,6 +28,12 @@ const createStore = <S, A extends Action>(
   options?: {
     deepClone?: <T>(obj: T) => T;
     deepEqual?: (x: any, y: any) => boolean;
+    persistent?: {
+      use?: boolean;
+      storeParts?: keyof S;
+      getData: Function;
+      setData: Function;
+    }
   }
 ) => {
   const deepClone = options?.deepClone || defaultFunctions.deepClone;
@@ -74,7 +80,7 @@ const createStore = <S, A extends Action>(
     return newStore;
   };
 
-  const draftDispatch: Dispatch<A> = (action) => {};
+  const draftDispatch: Dispatch<A> = (action) => { throw Error('You cant use dispatch outside of StoreProvider!')};
 
   const Store = createContext({
     dispatch: draftDispatch
