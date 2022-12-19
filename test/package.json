@@ -9,7 +9,7 @@
 	],
 	"main": "src/index.tsx",
 	"dependencies": {
-		"@snolly/context-store": "1.1.6",
+		"@snolly/context-store": "^1.1.7",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"react-scripts": "4.0.3"

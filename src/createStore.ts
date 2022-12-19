@@ -6,12 +6,18 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
-	useReducer,
 	useState,
 } from "react";
-import { ctxKey, defaultFunctions, internalType } from "./defaults";
-import { Action, Entries, Options, ParamOfIndex, Reducers, ValueOf } from "./models";
-import { restoreSavedStore } from "./utils";
+import { ctxKey, internalType } from "./defaults";
+import {
+	Action,
+	Entries,
+	Options,
+	ParamOfIndex,
+	Reducers,
+	ValueOf,
+} from "./models";
+import { defaultFunctions, restoreSavedStore } from "./utils";
 
 const createStore = <S extends Record<string, any>, A extends Action>(
 	initState: S,
@@ -34,17 +40,19 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 	>();
 	let prevStore: any = initState;
 
-	type ReducersActions = typeof reducer extends (...args: any[]) => any
-		? ParamOfIndex<typeof reducer, 1>
-		: ParamOfIndex<Exclude<ValueOf<typeof reducer>, undefined>, 1>;
+	type Reducer = typeof reducer;
+	// type ReducersActions = Reducer extends (...args: any[]) => any
+	// 	? ParamOfIndex<Reducer, 1>
+	// 	: ParamOfIndex<Exclude<ValueOf<Reducer>, undefined>, 1>;
 
 	let store = initState;
 
 	//trigger useSelector listeners if listener returned value has changed, after reducer change the store
-	const middlewareReducer = (action: ReducersActions) => {
+	const middlewareReducer = (action: A) => {
 		const newStore = deepClone(store);
 		let returnedStore: Partial<S> | void = {};
 
+		//@ts-ignore
 		if (action.type === internalType) {
 			returnedStore = action.payload;
 		} else if (typeof reducer === "function") {
@@ -69,18 +77,23 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 			}
 		}
 
-		if (saveStoreChanges && action.type !== internalType && options.persistent) {
-      if (options.persistent.storeKeys) {
-        options.persistent.storeKeys.forEach((key) => { // @ts-ignore
-          options.persistent.setData(ctxKey + "-" + key, newStore[key])
-        })
-      } else {
-        options.persistent.setData(ctxKey, newStore)
-      }
+		if (
+			saveStoreChanges && //@ts-ignore
+			action.type !== internalType &&
+			options.persistent
+		) {
+			if (options.persistent.storeKeys) {
+				options.persistent.storeKeys.forEach((key) => {
+					// @ts-ignore
+					options.persistent.setData(ctxKey + "-" + key, newStore[key]);
+				});
+			} else {
+				options.persistent.setData(ctxKey, newStore);
+			}
 		}
 
 		prevStore = newStore;
-    store = newStore;
+		store = newStore;
 	};
 
 	let draftDispatch: Dispatch<A> = (action) => {
@@ -91,7 +104,7 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 		dispatch: draftDispatch,
 	});
 
-  const dispatch = middlewareReducer;
+	const dispatch = middlewareReducer;
 
 	const StoreProvider = (props: PropsWithChildren<{}>) => {
 		const { children } = props;
@@ -99,7 +112,7 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 		const contextValue = useMemo(() => ({ dispatch }), []);
 
 		useEffect(() => {
-			saveStoreChanges && restoreSavedStore(options, dispatch)
+			saveStoreChanges && restoreSavedStore(options, dispatch);
 		}, []);
 
 		return createElement(Store.Provider, { value: contextValue, children });

@@ -35,6 +35,14 @@ export var deepEqual = function (x: any, y: any) {
 	} else return false;
 };
 
+const deepClone = <T extends any>(obj: T) =>
+	JSON.parse(JSON.stringify(obj)) as T;
+
+export const defaultFunctions = {
+	deepClone,
+	deepEqual,
+};
+
 export const restoreSavedStore = <S extends any>(
 	options: Options<S>,
 	dispatch: (action: any) => any
