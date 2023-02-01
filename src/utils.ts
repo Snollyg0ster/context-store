@@ -84,3 +84,25 @@ export const restoreSavedStore = <S extends any>(
 		});
 	}
 };
+
+const throwImmutableError = (err: string) => {
+	throw new Error(err);
+};
+export const unchangeableProxy = <T extends object>(obj: T, err: string): T =>
+	new Proxy(obj, {
+		get(target: any, key) {
+			if (typeof target[key] === "object" && target[key] !== null) {
+				return unchangeableProxy(target[key], err);
+			} else {
+				return target[key];
+			}
+		},
+		set() {
+			throwImmutableError(err);
+			return false;
+		},
+		deleteProperty() {
+			throwImmutableError(err);
+			return false;
+		},
+	});

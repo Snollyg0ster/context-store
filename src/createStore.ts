@@ -17,7 +17,11 @@ import {
 	Reducers,
 	ValueOf,
 } from "./models";
-import { defaultFunctions, restoreSavedStore } from "./utils";
+import {
+	defaultFunctions,
+	restoreSavedStore,
+	unchangeableProxy,
+} from "./utils";
 
 const createStore = <S extends Record<string, any>, A extends Action>(
 	initState: S,
@@ -73,7 +77,11 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 			const prev = selector(prevStore);
 			const curr = selector(newStore);
 			if (!deepEqual(prev, curr)) {
-				callback(curr);
+				const unchangeableObj = unchangeableProxy(
+					curr,
+					"You cant change Store manually"
+				);
+				callback(unchangeableObj);
 			}
 		}
 
