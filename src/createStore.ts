@@ -17,7 +17,7 @@ import {
 	Reducers,
 	ValueOf,
 } from "./models";
-import { defaultFunctions, restoreSavedStore } from "./utils";
+import { defaultFunctions, getIsRestored, restoreSavedStore } from "./utils";
 
 const createStore = <S extends Record<string, any>, A extends Action>(
 	initState: S,
@@ -96,6 +96,8 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 		store = newStore;
 	};
 
+	const { isRestored, setRestored } = getIsRestored();
+
 	let draftDispatch: Dispatch<A> = (action) => {
 		throw Error("You cant use dispatch outside of StoreProvider!");
 	};
@@ -112,7 +114,9 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 		const contextValue = useMemo(() => ({ dispatch }), []);
 
 		useEffect(() => {
-			saveStoreChanges && restoreSavedStore(options, dispatch);
+			saveStoreChanges
+				? restoreSavedStore(options, dispatch, setRestored)
+				: setRestored(true);
 		}, []);
 
 		return createElement(Store.Provider, { value: contextValue, children });
@@ -138,7 +142,7 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 
 	const useDispatch = () => useContext(Store).dispatch;
 
-	return { StoreProvider, useSelector, useDispatch };
+	return { StoreProvider, useSelector, useDispatch, isRestored };
 };
 
 export default createStore;

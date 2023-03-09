@@ -1,3 +1,4 @@
+import { Dispatch, useEffect, useState } from "react";
 import { ctxKey, internalStateUpdate } from "./defaults";
 import { Options } from "./models";
 
@@ -45,9 +46,11 @@ export const defaultFunctions = {
 
 export const restoreSavedStore = <S extends any>(
 	options: Options<S>,
-	dispatch: (action: any) => any
+	dispatch: (action: any) => any,
+	setRestored: (state: boolean) => void
 ) => {
 	if (!options?.persistent) {
+		setRestored(true);
 		return;
 	}
 	const { persistent } = options;
@@ -73,6 +76,7 @@ export const restoreSavedStore = <S extends any>(
 					{}
 				);
 				dispatch(internalStateUpdate(restoredStoreParts));
+				setRestored(true);
 			});
 	} else {
 		(async () => {
@@ -80,7 +84,34 @@ export const restoreSavedStore = <S extends any>(
 			return result;
 		})().then((restoredStore) => {
 			//@ts-ignore
-			restoredStore && dispatch(internalStateUpdate(restoredStore));
+			if (restoredStore) {
+				dispatch(internalStateUpdate(restoredStore));
+				setRestored(true);
+			}
 		});
 	}
+};
+
+export const getIsRestored = () => {
+	let restored = false;
+	let restoredHooksStateAction = new Set<
+		Dispatch<React.SetStateAction<boolean>>
+	>();
+	const setRestored = (state: boolean) => {
+		Array.from(restoredHooksStateAction).forEach((setState) => setState(state));
+		restored = state;
+	};
+
+	const isRestored = () => {
+		const [isReady, setIsReady] = useState(restored);
+
+		useEffect(() => {
+			restoredHooksStateAction.add(setIsReady);
+			() => restoredHooksStateAction.delete(setIsReady);
+		}, []);
+
+		return isReady;
+	};
+
+	return { setRestored, isRestored };
 };
