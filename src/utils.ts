@@ -86,8 +86,8 @@ export const restoreSavedStore = <S extends any>(
 			//@ts-ignore
 			if (restoredStore) {
 				dispatch(internalStateUpdate(restoredStore));
-				setRestored(true);
 			}
+			setRestored(true);
 		});
 	}
 };

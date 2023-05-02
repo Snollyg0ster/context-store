@@ -154,8 +154,8 @@ var restoreSavedStore = function (options, dispatch, setRestored) {
             //@ts-ignore
             if (restoredStore) {
                 dispatch((0, defaults_1.internalStateUpdate)(restoredStore));
-                setRestored(true);
             }
+            setRestored(true);
         });
     }
 };
