@@ -1,7 +1,8 @@
 import { Options } from "./models";
-export declare const createAction: <P = undefined>() => <T extends string>(type: T) => P extends undefined ? () => {
+export declare function createAction(): <T extends string>(type: T) => () => {
     type: T;
-} : (payload: P) => {
+};
+export declare function createAction<P extends any>(): <T extends string>(type: T) => (payload: P) => {
     type: T;
     payload: P;
 };

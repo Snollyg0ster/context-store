@@ -66,16 +66,9 @@ exports.__esModule = true;
 exports.getIsRestored = exports.restoreSavedStore = exports.defaultFunctions = exports.deepEqual = exports.createAction = void 0;
 var react_1 = require("react");
 var defaults_1 = require("./defaults");
-var createAction = function () {
-    return function (type) {
-        return (function (payload) {
-            return {
-                type: type,
-                payload: payload
-            };
-        });
-    };
-};
+function createAction() {
+    return function (type) { return function (payload) { return ({ payload: payload, type: type }); }; };
+}
 exports.createAction = createAction;
 var deepEqual = function (x, y) {
     if (x === y) {

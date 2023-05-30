@@ -2,18 +2,11 @@ import { Dispatch, useEffect, useState } from "react";
 import { ctxKey, internalStateUpdate } from "./defaults";
 import { Options } from "./models";
 
-export const createAction =
-	<P = undefined>() =>
-	<T extends string>(type: T) => {
-		return ((payload: P) => {
-			return {
-				type,
-				payload,
-			};
-		}) as P extends undefined
-			? () => { type: T }
-			: (payload: P) => { type: T; payload: P };
-	};
+export function createAction(): <T extends string>(type: T) => () => { type: T }
+export function createAction<P extends any>(): <T extends string>(type: T) => (payload: P) => { type: T; payload: P }
+export function createAction() {
+	return <T extends string>(type: T) => (payload?: any) => ({payload, type});
+}
 
 export var deepEqual = function (x: any, y: any) {
 	if (x === y) {

@@ -1,7 +1,7 @@
 {
 	"name": "@snolly/context-store",
-	"version": "1.2.10",
-	"description": "Context store with optimized rerenders",
+	"version": "1.2.11",
+	"description": "Redux like store with the ability to save data to persistent storage",
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
