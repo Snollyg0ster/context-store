@@ -13,10 +13,9 @@ import {
 	Action,
 	Entries,
 	Options,
-	ParamOfIndex,
 	Reducers,
-	ValueOf,
 } from "./models";
+import { produce } from "./draft";
 import { defaultFunctions, getIsRestored, restoreSavedStore } from "./utils";
 
 const createStore = <S extends Record<string, any>, A extends Action>(
@@ -24,7 +23,6 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 	reducer: ((store: S, action: A) => S | void) | Reducers<S, A>,
 	options?: Options<S>
 ) => {
-	const deepClone = options?.deepClone || defaultFunctions.deepClone;
 	const deepEqual = options?.deepEqual || defaultFunctions.deepEqual;
 	const saveStoreChanges = !!(
 		options?.persistent &&
@@ -38,41 +36,57 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 			callback: (val: any) => any;
 		}
 	>();
-	let prevStore: any = initState;
-
-	type Reducer = typeof reducer;
-	// type ReducersActions = Reducer extends (...args: any[]) => any
-	// 	? ParamOfIndex<Reducer, 1>
-	// 	: ParamOfIndex<Exclude<ValueOf<Reducer>, undefined>, 1>;
 
 	let store = initState;
 
-	//trigger useSelector listeners if listener returned value has changed, after reducer change the store
-	const middlewareReducer = (action: A) => {
-		const newStore = deepClone(store);
+	const applyAction = (draft: S, action: A) => {
 		let returnedStore: Partial<S> | void = {};
 
 		//@ts-ignore
 		if (action.type === internalType) {
 			returnedStore = action.payload;
 		} else if (typeof reducer === "function") {
-			returnedStore = reducer(newStore, action);
+			returnedStore = reducer(draft, action);
 		} else {
 			Object.entries(reducer).forEach((prop) => {
 				const [key, reduce] = prop as Entries<typeof reducer>; // @ts-ignore
-				const result = reduce(newStore[key], action);
+				const result = reduce(draft[key], action);
 				if (result) {
 					// @ts-ignore
 					returnedStore[key] = result;
 				}
 			});
-		} // @ts-ignore
-		Object.assign(newStore, returnedStore);
+		}
+		if (returnedStore && returnedStore !== draft) {
+			Object.assign(draft, returnedStore);
+		}
+	};
+
+	//without a custom deepClone only the changed paths of the store are copied
+	const getNextStore = (action: A): S => {
+		if (options?.deepClone) {
+			const newStore = options.deepClone(store);
+			applyAction(newStore, action);
+			return newStore;
+		}
+		return produce(store, (draft) => applyAction(draft, action));
+	};
+
+	//trigger useSelector listeners if listener returned value has changed, after reducer change the store
+	const middlewareReducer = (action: A) => {
+		const prevStore = store;
+		const newStore = getNextStore(action);
+
+		if (newStore === prevStore) {
+			return;
+		}
+
+		store = newStore;
 
 		for (const { selector, callback } of listeners.values()) {
 			const prev = selector(prevStore);
 			const curr = selector(newStore);
-			if (!deepEqual(prev, curr)) {
+			if (prev !== curr && !deepEqual(prev, curr)) {
 				callback(curr);
 			}
 		}
@@ -84,16 +98,15 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 		) {
 			if (options.persistent.storeKeys) {
 				options.persistent.storeKeys.forEach((key) => {
-					// @ts-ignore
-					options.persistent.setData(ctxKey + "-" + key, newStore[key]);
+					if (newStore[key] !== prevStore[key]) {
+						// @ts-ignore
+						options.persistent.setData(ctxKey + "-" + key, newStore[key]);
+					}
 				});
 			} else {
 				options.persistent.setData(ctxKey, newStore);
 			}
 		}
-
-		prevStore = newStore;
-		store = newStore;
 	};
 
 	const { isRestored, setRestored } = getIsRestored();
@@ -124,7 +137,7 @@ const createStore = <S extends Record<string, any>, A extends Action>(
 
 	const useSelector = <T>(selector: (state: S) => T): T => {
 		const isProviderChild = useContext(Store);
-		const [value, setValue] = useState(selector(prevStore));
+		const [value, setValue] = useState(() => selector(store));
 
 		useEffect(() => {
 			const id = Symbol("listenerId");
